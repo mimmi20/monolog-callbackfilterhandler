@@ -9,9 +9,9 @@
         "issues": "https://github.com/llaville/monolog-callbackfilterhandler/issues"
     },
     "require": {
-        "php": "^7.2 || ^8.0",
+        "php": "^8.1",
         "ext-json": "*",
-        "monolog/monolog": "^2.0"
+        "monolog/monolog": "^3.1"
     },
     "authors": [
         {

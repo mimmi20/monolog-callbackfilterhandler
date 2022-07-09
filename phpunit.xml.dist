@@ -2,7 +2,7 @@
 <phpunit
     backupGlobals="false"
     backupStaticAttributes="false"
-    bootstrap="tests/bootstrap.php"
+    bootstrap="vendor/autoload.php"
     colors="true"
     stopOnError="false"
     stopOnFailure="false"
@@ -13,14 +13,22 @@
     beStrictAboutTestsThatDoNotTestAnything="false"
     processIsolation="false"
 >
-    <filter>
-        <whitelist>
-            <directory suffix=".php">src/</directory>
-        </whitelist>
-    </filter>
+    <php>
+        <ini name="date.timezone" value="UTC"/>
+    </php>
+
     <testsuites>
         <testsuite name="Monolog CallbackFilterHandler Test Suite">
             <directory suffix="Test.php">tests/</directory>
         </testsuite>
     </testsuites>
+
+    <coverage includeUncoveredFiles="true" processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">src/</directory>
+        </include>
+        <report>
+            <text outputFile="php://stdout" showUncoveredFiles="true" showOnlySummary="false"/>
+        </report>
+    </coverage>
 </phpunit>

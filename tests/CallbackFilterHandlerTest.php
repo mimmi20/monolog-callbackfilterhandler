@@ -4,8 +4,11 @@ namespace Bartlett\Monolog\Handler\Tests;
 
 use Bartlett\Monolog\Handler\CallbackFilterHandler;
 
+use Monolog\Handler\HandlerInterface;
+use Monolog\Level;
 use Monolog\Logger;
 
+use Monolog\LogRecord;
 use Psr\Log\LogLevel;
 use RuntimeException;
 use function func_get_args;
@@ -20,11 +23,22 @@ class CallbackFilterHandlerTest extends TestCase
      * @covers CallbackFilterHandler::isHandling
      * @dataProvider provideSuiteRecords
      */
-    public function testIsHandling()
+    public function testIsHandling(LogRecord $record)
     {
-        $record  = $this->formatRecord(func_get_args());
         $filters = [];
-        $test    = new TestHandler();
+
+        $test    = $this->getMockBuilder(HandlerInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $test->expects(self::never())
+            ->method('isHandling');
+        $test->expects(self::never())
+            ->method('handle');
+        $test->expects(self::never())
+            ->method('handleBatch');
+        $test->expects(self::never())
+            ->method('close');
+
         $handler = new CallbackFilterHandler($test, $filters);
 
         $this->assertTrue($handler->isHandling($record));
@@ -36,15 +50,26 @@ class CallbackFilterHandlerTest extends TestCase
      * @covers CallbackFilterHandler::isHandling
      * @dataProvider provideSuiteRecords
      */
-    public function testIsHandlingLevel()
+    public function testIsHandlingLevel(LogRecord $record)
     {
-        $record  = $this->formatRecord(func_get_args());
         $filters = [];
-        $testlvl = Logger::WARNING;
-        $test    = new TestHandler($testlvl);
+        $testlvl = Level::Warning;
+
+        $test    = $this->getMockBuilder(HandlerInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $test->expects(self::never())
+            ->method('isHandling');
+        $test->expects(self::never())
+            ->method('handle');
+        $test->expects(self::never())
+            ->method('handleBatch');
+        $test->expects(self::never())
+            ->method('close');
+
         $handler = new CallbackFilterHandler($test, $filters, $testlvl);
 
-        if ($record['level'] >= $testlvl) {
+        if ($record->level->value >= $testlvl->value) {
             $this->assertTrue($handler->isHandling($record));
         } else {
             $this->assertFalse($handler->isHandling($record));
@@ -57,17 +82,28 @@ class CallbackFilterHandlerTest extends TestCase
      * @covers CallbackFilterHandler::isHandling
      * @dataProvider provideSuiteRecords
      */
-    public function testIsHandlingLevelWithLoglevel()
+    public function testIsHandlingLevelWithLoglevel(LogRecord $record)
     {
-        $record  = $this->formatRecord(func_get_args());
         $filters = [];
         $testlvl = LogLevel::WARNING;
-        $test    = new TestHandler($testlvl);
+
+        $test    = $this->getMockBuilder(HandlerInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $test->expects(self::never())
+            ->method('isHandling');
+        $test->expects(self::never())
+            ->method('handle');
+        $test->expects(self::never())
+            ->method('handleBatch');
+        $test->expects(self::never())
+            ->method('close');
+
         $handler = new CallbackFilterHandler($test, $filters, $testlvl);
 
         $levelToCompare = Logger::toMonologLevel($testlvl);
 
-        if ($record['level'] >= $levelToCompare) {
+        if ($record->level->value >= $levelToCompare->value) {
             $this->assertTrue($handler->isHandling($record));
         } else {
             $this->assertFalse($handler->isHandling($record));
@@ -80,19 +116,30 @@ class CallbackFilterHandlerTest extends TestCase
      * @covers CallbackFilterHandler::isHandling
      * @dataProvider provideSuiteRecords
      */
-    public function testIsHandlingLevelAndCallback()
+    public function testIsHandlingLevelAndCallback(LogRecord $record)
     {
-        $record  = $this->formatRecord(func_get_args());
         $filters = [
-            function ($record) {
-                return in_array($record['level'], [Logger::INFO, Logger::NOTICE], true);
+            function (LogRecord $record) {
+                return in_array($record->level->value, [Level::Info->value, Level::Notice->value], true);
             }
         ];
-        $testlvl = Logger::INFO;
-        $test    = new TestHandler($testlvl);
+        $testlvl = Level::Info;
+
+        $test    = $this->getMockBuilder(HandlerInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $test->expects(self::never())
+            ->method('isHandling');
+        $test->expects(self::never())
+            ->method('handle');
+        $test->expects(self::never())
+            ->method('handleBatch');
+        $test->expects(self::never())
+            ->method('close');
+
         $handler = new CallbackFilterHandler($test, $filters, $testlvl);
 
-        if (in_array($record['level'], [Logger::INFO, Logger::NOTICE], true)) {
+        if (in_array($record->level->value, [Level::Info->value, Level::Notice->value], true)) {
             $this->assertTrue($handler->isHandling($record));
         } else {
             $this->assertFalse($handler->isHandling($record));
@@ -105,19 +152,30 @@ class CallbackFilterHandlerTest extends TestCase
      * @covers CallbackFilterHandler::isHandling
      * @dataProvider provideSuiteRecords
      */
-    public function testIsHandlingLevelAndCallbackWithLoglevel()
+    public function testIsHandlingLevelAndCallbackWithLoglevel(LogRecord $record)
     {
-        $record  = $this->formatRecord(func_get_args());
         $filters = [
-            function ($record) {
-                return in_array($record['level'], [Logger::INFO, Logger::NOTICE], true);
+            function (LogRecord $record) {
+                return in_array($record->level->value, [Level::Info->value, Level::Notice->value], true);
             }
         ];
         $testlvl = LogLevel::INFO;
-        $test    = new TestHandler($testlvl);
+
+        $test    = $this->getMockBuilder(HandlerInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $test->expects(self::never())
+            ->method('isHandling');
+        $test->expects(self::never())
+            ->method('handle');
+        $test->expects(self::never())
+            ->method('handleBatch');
+        $test->expects(self::never())
+            ->method('close');
+
         $handler = new CallbackFilterHandler($test, $filters, $testlvl);
 
-        if (in_array($record['level'], [Logger::INFO, Logger::NOTICE], true)) {
+        if (in_array($record->level->value, [Level::Info->value, Level::Notice->value], true)) {
             $this->assertTrue($handler->isHandling($record));
         } else {
             $this->assertFalse($handler->isHandling($record));
@@ -130,30 +188,26 @@ class CallbackFilterHandlerTest extends TestCase
      * @covers CallbackFilterHandler::handle
      * @dataProvider provideSuiteRecords
      */
-    public function testHandleProcessOnlyNeededLevels()
+    public function testHandleProcessOnlyNeededLevels(LogRecord $record)
     {
-        $record  = $this->formatRecord(func_get_args());
         $filters = [
-            function ($record) {
-                if ($record['level'] == Logger::INFO) {
-                    return true;
-                }
-                if ($record['level'] == Logger::NOTICE) {
-                    return true;
-                }
-                return false;
+            function (LogRecord $record) {
+                return in_array($record->level->value, [Level::Info->value, Level::Notice->value], true);
             }
         ];
+
         $test    = new TestHandler();
         $handler = new CallbackFilterHandler($test, $filters);
         $handler->handle($record);
 
-        $hasMethod = 'has' . ucfirst(strtolower($record['level_name']));
+        $levelName = Level::fromValue($record->level->value)->getName();
+        $hasMethod = 'has' . ucfirst(strtolower($levelName));
+        $result = $test->{$hasMethod}(sprintf('sample of %s message', $levelName), $record->level);
 
-        if (in_array($record['level'], [Logger::INFO, Logger::NOTICE])) {
-            $this->assertTrue($test->{$hasMethod}($record, $record['level']));
+        if (in_array($record->level->value, [Level::Info->value, Level::Notice->value])) {
+            $this->assertTrue($result);
         } else {
-            $this->assertFalse($test->{$hasMethod}($record, $record['level']));
+            $this->assertFalse($result);
         }
     }
 
@@ -163,25 +217,26 @@ class CallbackFilterHandlerTest extends TestCase
      * @covers CallbackFilterHandler::handle
      * @dataProvider provideSuiteRecords
      */
-    public function testHandleProcessAllMatchingRules()
+    public function testHandleProcessAllMatchingRules(LogRecord $record)
     {
-        $record  = $this->formatRecord(func_get_args());
         $filters = [
-            function ($record) {
-                return ($record['level'] == Logger::NOTICE);
+            function (LogRecord $record) {
+                return ($record->level->value == Level::Notice->value);
             },
-            function ($record) {
-                return (preg_match('/^sample of/', $record['message']) === 1);
+            function (LogRecord $record) {
+                return (preg_match('/^sample of/', $record->message) === 1);
             }
         ];
+
         $test    = new TestHandler();
+
         $handler = new CallbackFilterHandler($test, $filters);
         $handler->handle($record);
 
-        if ($record['level'] === Logger::NOTICE) {
-            $this->assertTrue($test->hasNoticeThatContains($record['message']));
+        if ($record->level->value === Level::Notice->value) {
+            $this->assertTrue($test->hasNoticeThatContains($record->message));
         } else {
-            $this->assertFalse($test->hasNoticeThatContains($record['message']));
+            $this->assertFalse($test->hasNoticeThatContains($record->message));
         }
     }
 
@@ -193,19 +248,21 @@ class CallbackFilterHandlerTest extends TestCase
     public function testHandleBatch()
     {
         $filters = [
-            function ($record) {
-                return ($record['level'] == Logger::INFO);
+            function (LogRecord $record) {
+                return ($record->level->value == Level::Info->value);
             },
-            function ($record) {
-                return (preg_match('/information/', $record['message']) === 1);
+            function (LogRecord $record) {
+                return (preg_match('/information/', $record->message) === 1);
             }
         ];
+
         $records = $this->getMultipleRecords();
         $test    = new TestHandler();
+
         $handler = new CallbackFilterHandler($test, $filters);
         $handler->handleBatch($records);
 
-        $this->assertTrue($test->hasOnlyRecordsThatContains('information', Logger::INFO));
+        $this->assertTrue($test->hasOnlyRecordsThatContains('information', Level::Info));
     }
 
     /**
@@ -215,34 +272,29 @@ class CallbackFilterHandlerTest extends TestCase
     public function testHandleUsesProcessors()
     {
         $filters = [
-            function ($record) {
-                if ($record['level'] == Logger::DEBUG) {
-                    return true;
-                }
-                if ($record['level'] == Logger::WARNING) {
-                    return true;
-                }
-                return false;
+            function (LogRecord $record) {
+                return in_array($record->level->value, [Level::Debug->value, Level::Warning->value], true);
             }
         ];
 
         $test    = new TestHandler();
+
         $handler = new CallbackFilterHandler($test, $filters);
         $handler->pushProcessor(
-            function ($record) {
-                $record['extra']['foo'] = true;
+            function (LogRecord $record) {
+                $record->extra['foo'] = true;
 
                 return $record;
             }
         );
         $handler->handle($this->getRecord());
-        $handler->handle($this->getRecord(Logger::ERROR));
+        $handler->handle($this->getRecord(Level::Error));
 
         $this->assertTrue(
             $test->hasOnlyRecordsMatching(
                 [
                     'extra' => ['foo' => true],
-                    'level' => Logger::WARNING
+                    'level' => Level::Warning
                 ]
             )
         );
@@ -256,21 +308,21 @@ class CallbackFilterHandlerTest extends TestCase
      * @covers CallbackFilterHandler::handle
      * @dataProvider provideSuiteBubbleRecords
      */
-    public function testHandleRespectsBubble()
+    public function testHandleRespectsBubble(LogRecord $record)
     {
-        $record  = $this->formatRecord(func_get_args());
         $filters = [
-            function ($record) {
-                return in_array($record['level'], [Logger::INFO, Logger::NOTICE], true);
+            function (LogRecord $record) {
+                return in_array($record->level->value, [Level::Info->value, Level::Notice->value], true);
             }
         ];
-        $testlvl = Logger::INFO;
-        $test    = new TestHandler($testlvl);
+        $testlvl = Level::Info;
+
+        $test    = new TestHandler();
 
         foreach ([false, true] as $bubble) {
             $handler = new CallbackFilterHandler($test, $filters, $testlvl, $bubble);
 
-            if ($record['level'] == Logger::NOTICE && $bubble === false) {
+            if ($record->level->value == Level::Notice->value && $bubble === false) {
                 $this->assertTrue($handler->handle($record));
             } else {
                 $this->assertFalse($handler->handle($record));
@@ -286,21 +338,20 @@ class CallbackFilterHandlerTest extends TestCase
      * @covers CallbackFilterHandler::handle
      * @dataProvider provideSuiteBubbleRecords
      */
-    public function testHandleRespectsBubbleWithLoglevel()
+    public function testHandleRespectsBubbleWithLoglevel(LogRecord $record)
     {
-        $record  = $this->formatRecord(func_get_args());
         $filters = [
-            function ($record) {
-                return in_array($record['level'], [Logger::INFO, Logger::NOTICE], true);
+            function (LogRecord $record) {
+                return in_array($record->level->value, [Level::Info->value, Level::Notice->value], true);
             }
         ];
         $testlvl = LogLevel::INFO;
-        $test = new TestHandler($testlvl);
+        $test    = new TestHandler();
 
         foreach ([false, true] as $bubble) {
             $handler = new CallbackFilterHandler($test, $filters, $testlvl, $bubble);
 
-            if ($record['level'] == Logger::NOTICE && $bubble === false) {
+            if ($record->level->value == Level::Notice->value && $bubble === false) {
                 $this->assertTrue($handler->handle($record));
             } else {
                 $this->assertFalse($handler->handle($record));
@@ -314,8 +365,21 @@ class CallbackFilterHandlerTest extends TestCase
     public function testHandleWithBadFilterThrowsException()
     {
         $filters = [false];
-        $test    = new TestHandler();
+
+        $test    = $this->getMockBuilder(HandlerInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $test->expects(self::never())
+            ->method('isHandling');
+        $test->expects(self::never())
+            ->method('handle');
+        $test->expects(self::never())
+            ->method('handleBatch');
+        $test->expects(self::never())
+            ->method('close');
+
         $this->expectException(RuntimeException::class);
+
         new CallbackFilterHandler($test, $filters);
     }
 }

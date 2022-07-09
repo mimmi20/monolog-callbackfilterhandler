@@ -27,20 +27,8 @@ jobs:
             matrix:
                 include:
                     -
-                        os: ubuntu-18.04
-                        php: 7.2
-                        tools: phpunit:7.5.20
-                    -
-                        os: ubuntu-18.04
-                        php: 7.3
-                        tools: phpunit
-                    -
                         os: ubuntu-latest
-                        php: 7.4
-                        tools: phpunit
-                    -
-                        os: ubuntu-latest
-                        php: 8.0
+                        php: 8.1
                         tools: phpunit
 
         name: Monolog Callback Filter Handler
