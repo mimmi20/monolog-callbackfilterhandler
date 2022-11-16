@@ -27,6 +27,7 @@
   },
   "require-dev": {
     "ext-dom": "*",
+    "ext-simplexml": "*",
     "ext-tokenizer": "*",
     "ext-xml": "*",
     "ext-xmlwriter": "*",
