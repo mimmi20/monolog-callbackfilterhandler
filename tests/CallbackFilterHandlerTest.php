@@ -19,6 +19,7 @@ use Monolog\Handler\HandlerInterface;
 use Monolog\Level;
 use Monolog\Logger;
 use Monolog\LogRecord;
+use Monolog\Processor\ProcessorInterface;
 use Monolog\Processor\UidProcessor;
 use PHPUnit\Framework\Exception;
 use Psr\Log\InvalidArgumentException;
@@ -60,6 +61,8 @@ final class CallbackFilterHandlerTest extends TestCase
         $handler = new CallbackFilterHandler($test, $filters);
 
         self::assertTrue($handler->isHandling($record));
+        self::assertTrue($handler->getBubble());
+        self::assertSame(Level::Debug, $handler->getLevel());
     }
 
     /**
@@ -87,13 +90,16 @@ final class CallbackFilterHandlerTest extends TestCase
         $test->expects(self::never())
             ->method('close');
 
-        $handler = new CallbackFilterHandler($test, $filters, $testlvl);
+        $handler = new CallbackFilterHandler($test, $filters, $testlvl, false);
 
         if ($record->level->value >= $testlvl->value) {
             self::assertTrue($handler->isHandling($record));
         } else {
             self::assertFalse($handler->isHandling($record));
         }
+
+        self::assertSame($testlvl, $handler->getLevel());
+        self::assertFalse($handler->getBubble());
     }
 
     /**
@@ -320,16 +326,28 @@ final class CallbackFilterHandlerTest extends TestCase
 
         $test = new TestHandler();
 
-        $handler = new CallbackFilterHandler($test, $filters);
-        $handler->pushProcessor(
-            static function (LogRecord $record) {
-                $record->extra['foo'] = true;
+        $record1 = $this->getRecord();
+        $record2 = $this->getRecord(Level::Error);
 
-                return $record;
-            },
-        );
-        $handler->handle($this->getRecord());
-        $handler->handle($this->getRecord(Level::Error));
+        $callback = static function (LogRecord $record): LogRecord {
+            $record->extra['foo'] = true;
+
+            return $record;
+        };
+
+        $processor = $this->getMockBuilder(ProcessorInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $processor->expects(self::once())
+            ->method('__invoke')
+            ->with($record1)
+            ->willReturnCallback($callback);
+
+        $handler = new CallbackFilterHandler($test, $filters);
+        $handler->pushProcessor($processor);
+
+        $handler->handle($record1);
+        $handler->handle($record2);
 
         self::assertTrue(
             $test->hasOnlyRecordsMatching(
