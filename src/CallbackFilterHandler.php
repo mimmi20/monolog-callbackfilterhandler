@@ -105,9 +105,7 @@ final class CallbackFilterHandler extends AbstractHandler implements Processable
             return false;
         }
 
-        if (0 < count($this->processors)) {
-            $record = $this->processRecord($record);
-        }
+        $record = $this->processRecord($record);
 
         $this->getHandler($record)->handle($record);
 
@@ -122,8 +120,8 @@ final class CallbackFilterHandler extends AbstractHandler implements Processable
     public function handleBatch(array $records): void
     {
         // The same logic as in FilterHandler
-
         $filtered = [];
+
         foreach ($records as $record) {
             if (!$this->isHandling($record)) {
                 continue;
