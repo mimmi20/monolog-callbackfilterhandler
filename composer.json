@@ -26,6 +26,8 @@
     "monolog/monolog": "^3.2.0"
   },
   "require-dev": {
+    "ext-dom": "*",
+    "ext-tokenizer": "*",
     "mimmi20/coding-standard": "^3.0.14",
     "phpstan/extension-installer": "^1.1.0",
     "phpstan/phpstan": "^1.8.9",
