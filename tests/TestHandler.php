@@ -1,67 +1,86 @@
-<?php declare(strict_types=1);
+<?php
+/**
+ * This file is part of the mimmi20/monolog-callbackfilterhandler package.
+ *
+ * Copyright (c) 2022, Thomas Mueller <mimmi20@live.de>
+ * Copyright (c) 2015-2021, Laurent Laville <pear@laurent-laville.org>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
-namespace Bartlett\Monolog\Handler\Tests;
+declare(strict_types = 1);
 
-use Monolog\Level;
-use Monolog\Logger;
+namespace Mimmi20\Monolog\Handler\Tests;
+
 use Monolog\Handler\TestHandler as BaseTestHandler;
+use Monolog\Level;
 
-use Monolog\LogRecord;
-use function array_key_exists;
 use function array_keys;
 use function count;
-use function strpos;
+use function property_exists;
+use function str_contains;
 
 /**
  * Features included in dev-master branch but not yet released as a stable version
+ *
  * @see https://github.com/Seldaek/monolog/pull/529
  *
  * And 2 new features not yet proposed
  * @see hasOnlyRecordsThatContains()
  * @see hasOnlyRecordsMatching()
  */
-class TestHandler extends BaseTestHandler
+final class TestHandler extends BaseTestHandler
 {
-    public function hasEmergencyThatContains($message): bool
+    /** @throws void */
+    public function hasEmergencyThatContains(string $message): bool
     {
         return $this->hasRecordThatContains($message, Level::Emergency);
     }
 
-    public function hasAlertThatContains($message): bool
+    /** @throws void */
+    public function hasAlertThatContains(string $message): bool
     {
         return $this->hasRecordThatContains($message, Level::Alert);
     }
 
-    public function hasCriticalThatContains($message): bool
+    /** @throws void */
+    public function hasCriticalThatContains(string $message): bool
     {
         return $this->hasRecordThatContains($message, Level::Critical);
     }
 
-    public function hasErrorThatContains($message): bool
+    /** @throws void */
+    public function hasErrorThatContains(string $message): bool
     {
         return $this->hasRecordThatContains($message, Level::Error);
     }
 
-    public function hasWarningThatContains($message): bool
+    /** @throws void */
+    public function hasWarningThatContains(string $message): bool
     {
         return $this->hasRecordThatContains($message, Level::Warning);
     }
 
-    public function hasNoticeThatContains($message): bool
+    /** @throws void */
+    public function hasNoticeThatContains(string $message): bool
     {
         return $this->hasRecordThatContains($message, Level::Notice);
     }
 
-    public function hasInfoThatContains($message): bool
+    /** @throws void */
+    public function hasInfoThatContains(string $message): bool
     {
         return $this->hasRecordThatContains($message, Level::Info);
     }
 
-    public function hasDebugThatContains($message): bool
+    /** @throws void */
+    public function hasDebugThatContains(string $message): bool
     {
         return $this->hasRecordThatContains($message, Level::Debug);
     }
 
+    /** @throws void */
     public function hasRecordThatContains(string $message, Level $level): bool
     {
         if (!isset($this->recordsByLevel[$level->value])) {
@@ -69,7 +88,7 @@ class TestHandler extends BaseTestHandler
         }
 
         foreach ($this->recordsByLevel[$level->value] as $rec) {
-            if (str_contains($rec['message'], $message)) {
+            if (str_contains($rec->message, $message)) {
                 return true;
             }
         }
@@ -77,12 +96,16 @@ class TestHandler extends BaseTestHandler
         return false;
     }
 
-    // new feature not yet proposed
+    /**
+     * new feature not yet proposed
+     *
+     * @throws void
+     */
     public function hasOnlyRecordsThatContains(string $message, Level $level): bool
     {
         $levels = array_keys($this->recordsByLevel);
 
-        if (count($levels) !== 1) {
+        if (1 !== count($levels)) {
             return false;
         }
 
@@ -90,6 +113,14 @@ class TestHandler extends BaseTestHandler
     }
 
     // new feature not yet proposed
+
+    /**
+     * new feature not yet proposed
+     *
+     * @param array<string, mixed> $pattern
+     *
+     * @throws void
+     */
     public function hasOnlyRecordsMatching(array $pattern): bool
     {
         foreach ($this->records as $record) {
@@ -98,7 +129,7 @@ class TestHandler extends BaseTestHandler
                     return false;
                 }
 
-                if ($record->$key !== $pattern[$key]) {
+                if ($record->{$key} !== $pattern[$key]) {
                     return false;
                 }
             }

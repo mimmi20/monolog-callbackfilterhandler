@@ -1,15 +1,21 @@
-<?php declare(strict_types=1);
+<?php
 /**
- * Callback Filter Handler for Monolog.
+ * This file is part of the mimmi20/monolog-callbackfilterhandler package.
  *
- * @category Logging
- * @package  monolog-callbackfilterhandler
- * @author   Laurent Laville <pear@laurent-laville.org>
- * @author   Christophe Coevoet
- * @license  http://www.opensource.org/licenses/bsd-license.php  BSD License
+ * Copyright (c) 2022, Thomas Mueller <mimmi20@live.de>
+ * Copyright (c) 2015-2021, Laurent Laville <pear@laurent-laville.org>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
-namespace Bartlett\Monolog\Handler;
+declare(strict_types = 1);
+
+/**
+ * Callback Filter Handler for Monolog.
+ */
+
+namespace Mimmi20\Monolog\Handler;
 
 use Closure;
 use Monolog\Handler\AbstractHandler;
@@ -17,27 +23,17 @@ use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\ProcessableHandlerInterface;
 use Monolog\Handler\ProcessableHandlerTrait;
 use Monolog\Level;
-use Monolog\Logger;
 use Monolog\LogRecord;
 use Monolog\ResettableInterface;
-use Psr\Log\LogLevel;
 use RuntimeException;
-use function array_shift;
-use function array_unshift;
-use function is_callable;
+
+use function count;
 use function json_encode;
 
 /**
  * Monolog handler wrapper that filters records based on a list of callback functions.
- *
- * @category Logging
- * @package  monolog-callbackfilterhandler
- * @author   Laurent Laville <pear@laurent-laville.org>
- * @author   Christophe Coevoet
- * @license  http://www.opensource.org/licenses/bsd-license.php BSD License
- * @since    Class available since Release 1.0.0
  */
-class CallbackFilterHandler extends AbstractHandler implements ProcessableHandlerInterface, ResettableInterface
+final class CallbackFilterHandler extends AbstractHandler implements ProcessableHandlerInterface, ResettableInterface
 {
     use ProcessableHandlerTrait;
 
@@ -46,24 +42,25 @@ class CallbackFilterHandler extends AbstractHandler implements ProcessableHandle
      *
      * @phpstan-var (Closure(LogRecord|null, HandlerInterface): HandlerInterface)|HandlerInterface
      */
-    protected Closure|HandlerInterface $handler;
+    protected Closure | HandlerInterface $handler;
 
     /**
      * Filters Closure to restrict log records.
      *
      * @var Closure[]
-     *
      * @phpstan-var array<int|string, (Closure(LogRecord, int|string|Level): bool)>
      */
     protected array $filters;
 
     /**
-     * @param Closure|HandlerInterface $handler Handler or factory Closure($record, $this).
+     * @param Closure|HandlerInterface $handler handler or factory Closure($record, $this)
      * @param Closure[]                $filters A list of filters to apply
-     * @param int|string|Level         $level   The minimum logging level at which this handler will be triggered
+     * @param int|Level|string         $level   The minimum logging level at which this handler will be triggered
      * @param bool                     $bubble  Whether the messages that are handled can bubble up the stack or not
+     *
+     * @throws RuntimeException
      */
-    public function __construct(Closure|HandlerInterface $handler, array $filters, int|string|Level $level = Level::Debug, bool $bubble = true)
+    public function __construct(Closure | HandlerInterface $handler, array $filters, int | string | Level $level = Level::Debug, bool $bubble = true)
     {
         parent::__construct($level, $bubble);    // @phpstan-ignore-line
 
@@ -73,16 +70,15 @@ class CallbackFilterHandler extends AbstractHandler implements ProcessableHandle
         foreach ($filters as $filter) {
             if (!$filter instanceof Closure) {
                 throw new RuntimeException(
-                    'The given filter (' . json_encode($filter) . ') is not a Closure'
+                    'The given filter (' . json_encode($filter) . ') is not a Closure',
                 );
             }
+
             $this->filters[] = $filter;
         }
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @throws void */
     public function isHandling(LogRecord $record): bool
     {
         if (!parent::isHandling($record)) {
@@ -101,11 +97,7 @@ class CallbackFilterHandler extends AbstractHandler implements ProcessableHandle
         return true;
     }
 
-    /**
-     * @inheritDoc
-     *
-     * @throws RuntimeException
-     */
+    /** @throws RuntimeException */
     public function handle(LogRecord $record): bool
     {
         // The same logic as in FilterHandler
@@ -114,7 +106,7 @@ class CallbackFilterHandler extends AbstractHandler implements ProcessableHandle
             return false;
         }
 
-        if (\count($this->processors) > 0) {
+        if (0 < count($this->processors)) {
             $record = $this->processRecord($record);
         }
 
@@ -124,7 +116,7 @@ class CallbackFilterHandler extends AbstractHandler implements ProcessableHandle
     }
 
     /**
-     * @inheritDoc
+     * @param LogRecord[] $records
      *
      * @throws RuntimeException
      */
@@ -134,14 +126,18 @@ class CallbackFilterHandler extends AbstractHandler implements ProcessableHandle
 
         $filtered = [];
         foreach ($records as $record) {
-            if ($this->isHandling($record)) {
-                $filtered[] = $record;
+            if (!$this->isHandling($record)) {
+                continue;
             }
+
+            $filtered[] = $record;
         }
 
-        if (count($filtered) > 0) {
-            $this->getHandler($filtered[count($filtered) - 1])->handleBatch($filtered);
+        if (0 >= count($filtered)) {
+            return;
         }
+
+        $this->getHandler($filtered[count($filtered) - 1])->handleBatch($filtered);
     }
 
     /**
@@ -151,29 +147,34 @@ class CallbackFilterHandler extends AbstractHandler implements ProcessableHandle
      *
      * @throws RuntimeException
      */
-    public function getHandler(LogRecord $record = null): HandlerInterface
+    public function getHandler(LogRecord | null $record = null): HandlerInterface
     {
         // The same logic as in FingersCrossedHandler
 
         if (!$this->handler instanceof HandlerInterface) {
             $handler = ($this->handler)($record, $this);
+
             if (!$handler instanceof HandlerInterface) {
-                throw new RuntimeException("The factory Closure should return a HandlerInterface");
+                throw new RuntimeException('The factory Closure should return a HandlerInterface');
             }
+
             $this->handler = $handler;
         }
 
         return $this->handler;
     }
 
+    /** @throws RuntimeException */
     public function reset(): void
     {
         $this->resetProcessors();
 
         $handler = $this->getHandler();
 
-        if ($handler instanceof ResettableInterface) {
-            $handler->reset();
+        if (!($handler instanceof ResettableInterface)) {
+            return;
         }
+
+        $handler->reset();
     }
 }
