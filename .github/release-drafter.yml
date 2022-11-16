@@ -32,11 +32,11 @@ categories:
   - title: '**🧹 Maintenance:**'
     labels:
       - 'maintenance'
-  # other Labels to mimmi20/monolog-laminas-factory
+  # other Labels to mimmi20/monolog-callbackfilterhandler
   #- title: '**📦 new Useragents:**'
   #  labels:
   #    - 'new useragents'
 
-commitish: 2.0.x
-target_commitish: 2.0.x
+commitish: master
+target_commitish: master
 filter-by-commitish: true
