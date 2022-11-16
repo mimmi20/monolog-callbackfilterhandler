@@ -14,10 +14,12 @@ declare(strict_types = 1);
 namespace Mimmi20\Monolog\Handler\Tests;
 
 use Mimmi20\Monolog\Handler\CallbackFilterHandler;
+use Monolog\Handler\GroupHandler;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Level;
 use Monolog\Logger;
 use Monolog\LogRecord;
+use Monolog\Processor\UidProcessor;
 use PHPUnit\Framework\Exception;
 use Psr\Log\InvalidArgumentException;
 use Psr\Log\LogLevel;
@@ -283,6 +285,29 @@ final class CallbackFilterHandlerTest extends TestCase
     }
 
     /**
+     * Filter events on batch mode.
+     *
+     * @throws Exception
+     * @throws RuntimeException
+     * @throws InvalidArgumentException
+     */
+    public function testHandleBatch2(): void
+    {
+        $filters = [
+            static fn (LogRecord $record) => $record->level->value === Level::Info->value,
+            static fn (LogRecord $record) => false === preg_match('/information/', $record->message),
+        ];
+
+        $records = $this->getMultipleRecords();
+        $test    = new TestHandler();
+
+        $handler = new CallbackFilterHandler($test, $filters);
+        $handler->handleBatch($records);
+
+        self::assertSame([], $test->getRecords());
+    }
+
+    /**
      * @throws Exception
      * @throws RuntimeException
      * @throws InvalidArgumentException
@@ -401,5 +426,172 @@ final class CallbackFilterHandlerTest extends TestCase
         $this->expectExceptionCode(0);
 
         new CallbackFilterHandler($test, $filters);
+    }
+
+    /**
+     * Bad filter configuration.
+     *
+     * @throws RuntimeException
+     */
+    public function testGetHandler(): void
+    {
+        $filters = [];
+
+        $test = $this->getMockBuilder(HandlerInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $test->expects(self::never())
+            ->method('isHandling');
+        $test->expects(self::never())
+            ->method('handle');
+        $test->expects(self::never())
+            ->method('handleBatch');
+        $test->expects(self::never())
+            ->method('close');
+
+        $handler = new CallbackFilterHandler($test, $filters);
+
+        self::assertSame($test, $handler->getHandler());
+    }
+
+    /**
+     * Bad filter configuration.
+     *
+     * @throws RuntimeException
+     */
+    public function testGetHandlerWithClosureFailure(): void
+    {
+        $filters = [];
+
+        $test = $this->getMockBuilder(HandlerInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $test->expects(self::never())
+            ->method('isHandling');
+        $test->expects(self::never())
+            ->method('handle');
+        $test->expects(self::never())
+            ->method('handleBatch');
+        $test->expects(self::never())
+            ->method('close');
+
+        $logRecord = $this->createMock(LogRecord::class);
+
+        $handler = new CallbackFilterHandler(
+            /**
+             * @throws void
+             *
+             * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
+             */
+            static function (LogRecord $innerRecord, HandlerInterface $innerHandler) use ($logRecord): mixed {
+                self::assertSame($innerRecord, $logRecord);
+
+                return null;
+            },
+            $filters,
+        );
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('The factory Closure should return a HandlerInterface');
+        $this->expectExceptionCode(0);
+
+        $handler->getHandler($logRecord);
+    }
+
+    /**
+     * Bad filter configuration.
+     *
+     * @throws RuntimeException
+     */
+    public function testGetHandlerWithClosure(): void
+    {
+        $filters = [];
+
+        $test = $this->getMockBuilder(HandlerInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $test->expects(self::never())
+            ->method('isHandling');
+        $test->expects(self::never())
+            ->method('handle');
+        $test->expects(self::never())
+            ->method('handleBatch');
+        $test->expects(self::never())
+            ->method('close');
+
+        $logRecord   = $this->createMock(LogRecord::class);
+        $testHandler = $this->createMock(HandlerInterface::class);
+
+        $handler = new CallbackFilterHandler(
+            /**
+             * @throws void
+             *
+             * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
+             */
+            static function (LogRecord $innerRecord, HandlerInterface $innerHandler) use ($logRecord, $testHandler): mixed {
+                self::assertSame($innerRecord, $logRecord);
+
+                return $testHandler;
+            },
+            $filters,
+        );
+
+        self::assertSame($testHandler, $handler->getHandler($logRecord));
+    }
+
+    /**
+     * @throws Exception
+     * @throws RuntimeException
+     */
+    public function testReset(): void
+    {
+        $filters = [
+            static fn (LogRecord $record) => in_array($record->level->value, [Level::Debug->value, Level::Warning->value], true),
+        ];
+
+        $test = $this->getMockBuilder(GroupHandler::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $test->expects(self::once())
+            ->method('reset');
+
+        $processor = $this->getMockBuilder(UidProcessor::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $processor->expects(self::once())
+            ->method('reset');
+
+        $handler = new CallbackFilterHandler($test, $filters);
+        $handler->pushProcessor($processor);
+
+        $handler->reset();
+    }
+
+    /**
+     * @throws Exception
+     * @throws RuntimeException
+     */
+    public function testReset2(): void
+    {
+        $filters = [
+            static fn (LogRecord $record) => in_array($record->level->value, [Level::Debug->value, Level::Warning->value], true),
+        ];
+
+        $test = $this->getMockBuilder(BaseTestHandler::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $test->expects(self::never())
+            ->method('reset');
+
+        $processor = $this->getMockBuilder(UidProcessor::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $processor->expects(self::once())
+            ->method('reset');
+
+        $handler = new CallbackFilterHandler($test, $filters);
+        $handler->pushProcessor($processor);
+
+        $handler->reset();
     }
 }

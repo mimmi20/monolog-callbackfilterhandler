@@ -25,6 +25,7 @@ use Monolog\Handler\ProcessableHandlerTrait;
 use Monolog\Level;
 use Monolog\LogRecord;
 use Monolog\ResettableInterface;
+use Psr\Log\LogLevel;
 use RuntimeException;
 
 use function count;
@@ -33,16 +34,9 @@ use function json_encode;
 /**
  * Monolog handler wrapper that filters records based on a list of callback functions.
  */
-final class CallbackFilterHandler extends AbstractHandler implements ProcessableHandlerInterface, ResettableInterface
+final class CallbackFilterHandler extends AbstractHandler implements ProcessableHandlerInterface
 {
     use ProcessableHandlerTrait;
-
-    /**
-     * Handler or factory Closure($record, $this)
-     *
-     * @phpstan-var (Closure(LogRecord|null, HandlerInterface): HandlerInterface)|HandlerInterface
-     */
-    protected Closure | HandlerInterface $handler;
 
     /**
      * Filters Closure to restrict log records.
@@ -57,14 +51,19 @@ final class CallbackFilterHandler extends AbstractHandler implements Processable
      * @param Closure[]                $filters A list of filters to apply
      * @param int|Level|string         $level   The minimum logging level at which this handler will be triggered
      * @param bool                     $bubble  Whether the messages that are handled can bubble up the stack or not
+     * @phpstan-param (Closure(LogRecord|null, HandlerInterface): HandlerInterface)|HandlerInterface $handler
+     * @phpstan-param value-of<Level::VALUES>|value-of<Level::NAMES>|Level|LogLevel::* $level
      *
      * @throws RuntimeException
      */
-    public function __construct(Closure | HandlerInterface $handler, array $filters, int | string | Level $level = Level::Debug, bool $bubble = true)
-    {
-        parent::__construct($level, $bubble);    // @phpstan-ignore-line
+    public function __construct(
+        private Closure | HandlerInterface $handler,
+        array $filters,
+        int | string | Level $level = Level::Debug,
+        bool $bubble = true,
+    ) {
+        parent::__construct($level, $bubble);
 
-        $this->handler = $handler;
         $this->filters = [];
 
         foreach ($filters as $filter) {
