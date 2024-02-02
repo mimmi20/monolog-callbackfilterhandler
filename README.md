@@ -9,9 +9,11 @@ This library is a Fork of [llaville/monolog-callbackfilterhandler](https://githu
 ## Code Status
 
 [![codecov](https://codecov.io/gh/mimmi20/monolog-callbackfilterhandler/branch/master/graph/badge.svg)](https://codecov.io/gh/mimmi20/monolog-callbackfilterhandler)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/8debc6c572634c0d5cd7/test_coverage)](https://codeclimate.com/github/mimmi20/monolog-callbackfilterhandler/test_coverage)
 [![Average time to resolve an issue](https://isitmaintained.com/badge/resolution/mimmi20/monolog-callbackfilterhandler.svg)](https://isitmaintained.com/project/mimmi20/monolog-callbackfilterhandler "Average time to resolve an issue")
 [![Percentage of issues still open](https://isitmaintained.com/badge/open/mimmi20/monolog-callbackfilterhandler.svg)](https://isitmaintained.com/project/mimmi20/monolog-callbackfilterhandler "Percentage of issues still open")
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fmimmi20%2Fmonolog-callbackfilterhandler%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/mimmi20/monolog-callbackfilterhandler/master)
+[![Maintainability](https://api.codeclimate.com/v1/badges/8debc6c572634c0d5cd7/maintainability)](https://codeclimate.com/github/mimmi20/monolog-callbackfilterhandler/maintainability)
 
 ## Requirements
 
