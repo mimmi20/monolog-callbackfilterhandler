@@ -25,7 +25,7 @@ use Monolog\LogRecord;
  * @see hasOnlyRecordsThatContains()
  * @see hasOnlyRecordsMatching()
  */
-abstract class BaseTestHandler extends Handler
+abstract class AbstractTestHandler extends Handler
 {
     /**
      * @throws void
@@ -47,7 +47,11 @@ abstract class BaseTestHandler extends Handler
         return false;
     }
 
-    /** @throws void */
+    /**
+     * @throws void
+     *
+     * @api
+     */
     public function reset(): void
     {
         // do nothing

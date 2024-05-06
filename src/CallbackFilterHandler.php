@@ -48,7 +48,7 @@ final class CallbackFilterHandler extends AbstractHandler implements Processable
      * @var array<Closure>
      * @phpstan-var array<int|string, (Closure(LogRecord, Level): bool)>
      */
-    protected array $filters;
+    private array $filters;
 
     /**
      * @param Closure|HandlerInterface $handler handler or factory Closure($record, $this)

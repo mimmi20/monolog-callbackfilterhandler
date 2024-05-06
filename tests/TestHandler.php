@@ -100,6 +100,8 @@ final class TestHandler extends BaseTestHandler
      * new feature not yet proposed
      *
      * @throws void
+     *
+     * @api
      */
     public function hasOnlyRecordsThatContains(string $message, Level $level): bool
     {
@@ -120,6 +122,8 @@ final class TestHandler extends BaseTestHandler
      * @param array<string, mixed> $pattern
      *
      * @throws void
+     *
+     * @api
      */
     public function hasOnlyRecordsMatching(array $pattern): bool
     {

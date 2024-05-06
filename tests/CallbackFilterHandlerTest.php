@@ -33,7 +33,7 @@ use function preg_match;
 use function sprintf;
 use function ucfirst;
 
-final class CallbackFilterHandlerTest extends TestCase
+final class CallbackFilterHandlerTest extends AbstractTestCase
 {
     /**
      * Filter events on standard log level (without restriction).
@@ -445,17 +445,45 @@ final class CallbackFilterHandlerTest extends TestCase
     {
         $filters = [false];
 
-        $test = $this->getMockBuilder(HandlerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $test->expects(self::never())
-            ->method('isHandling');
-        $test->expects(self::never())
-            ->method('handle');
-        $test->expects(self::never())
-            ->method('handleBatch');
-        $test->expects(self::never())
-            ->method('close');
+        $test = new class () implements HandlerInterface {
+            /**
+             * @throws \Exception
+             *
+             * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
+             */
+            public function isHandling(LogRecord $record): bool
+            {
+                throw new \Exception();
+            }
+
+            /**
+             * @throws \Exception
+             *
+             * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
+             */
+            public function handle(LogRecord $record): bool
+            {
+                throw new \Exception();
+            }
+
+            /**
+             * @param array<LogRecord> $records
+             *
+             * @throws \Exception
+             *
+             * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
+             */
+            public function handleBatch(array $records): void
+            {
+                throw new \Exception();
+            }
+
+            /** @throws \Exception */
+            public function close(): void
+            {
+                throw new \Exception();
+            }
+        };
 
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('The given filter (false) is not a Closure');
@@ -473,17 +501,45 @@ final class CallbackFilterHandlerTest extends TestCase
     {
         $filters = [];
 
-        $test = $this->getMockBuilder(HandlerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $test->expects(self::never())
-            ->method('isHandling');
-        $test->expects(self::never())
-            ->method('handle');
-        $test->expects(self::never())
-            ->method('handleBatch');
-        $test->expects(self::never())
-            ->method('close');
+        $test = new class () implements HandlerInterface {
+            /**
+             * @throws \Exception
+             *
+             * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
+             */
+            public function isHandling(LogRecord $record): bool
+            {
+                throw new \Exception();
+            }
+
+            /**
+             * @throws \Exception
+             *
+             * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
+             */
+            public function handle(LogRecord $record): bool
+            {
+                throw new \Exception();
+            }
+
+            /**
+             * @param array<LogRecord> $records
+             *
+             * @throws \Exception
+             *
+             * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
+             */
+            public function handleBatch(array $records): void
+            {
+                throw new \Exception();
+            }
+
+            /** @throws \Exception */
+            public function close(): void
+            {
+                throw new \Exception();
+            }
+        };
 
         $handler = new CallbackFilterHandler($test, $filters);
 
@@ -498,18 +554,6 @@ final class CallbackFilterHandlerTest extends TestCase
     public function testGetHandlerWithClosureFailure(): void
     {
         $filters = [];
-
-        $test = $this->getMockBuilder(HandlerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $test->expects(self::never())
-            ->method('isHandling');
-        $test->expects(self::never())
-            ->method('handle');
-        $test->expects(self::never())
-            ->method('handleBatch');
-        $test->expects(self::never())
-            ->method('close');
 
         $logRecord = $this->createMock(LogRecord::class);
 
@@ -542,18 +586,6 @@ final class CallbackFilterHandlerTest extends TestCase
     public function testGetHandlerWithClosure(): void
     {
         $filters = [];
-
-        $test = $this->getMockBuilder(HandlerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $test->expects(self::never())
-            ->method('isHandling');
-        $test->expects(self::never())
-            ->method('handle');
-        $test->expects(self::never())
-            ->method('handleBatch');
-        $test->expects(self::never())
-            ->method('close');
 
         $logRecord   = $this->createMock(LogRecord::class);
         $testHandler = $this->createMock(HandlerInterface::class);
@@ -621,7 +653,7 @@ final class CallbackFilterHandlerTest extends TestCase
             ),
         ];
 
-        $test = $this->getMockBuilder(BaseTestHandler::class)
+        $test = $this->getMockBuilder(AbstractTestHandler::class)
             ->disableOriginalConstructor()
             ->getMock();
         $test->expects(self::never())
