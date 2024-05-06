@@ -17,12 +17,13 @@ use DateTimeImmutable;
 use Monolog\Level;
 use Monolog\Logger;
 use Monolog\LogRecord;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\InvalidArgumentException;
 use Psr\Log\LogLevel;
 
 use function sprintf;
 
-abstract class TestCase extends \PHPUnit\Framework\TestCase
+abstract class AbstractTestCase extends TestCase
 {
     /**
      * Data provider that produce a suite of records in level order.
