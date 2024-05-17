@@ -48,10 +48,13 @@ updates:
       include: "scope"
       prefix: "composer"
 
-#    ignore:
-#      - dependency-name: "rollbar/rollbar"
-#        versions:
-#          - ">= 3"
+    ignore:
+      - dependency-name: "nikic/php-parser"
+        versions:
+          - ">= 0"
+      - dependency-name: "infection/infection"
+        versions:
+          - ">= 0"
 
   - package-ecosystem: "github-actions"
 
