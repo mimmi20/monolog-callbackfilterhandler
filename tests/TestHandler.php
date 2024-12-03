@@ -16,6 +16,7 @@ namespace Mimmi20\Monolog\Handler\Tests;
 
 use Monolog\Handler\TestHandler as BaseTestHandler;
 use Monolog\Level;
+use Override;
 
 use function array_keys;
 use function count;
@@ -82,6 +83,7 @@ final class TestHandler extends BaseTestHandler
     }
 
     /** @throws void */
+    #[Override]
     public function hasRecordThatContains(string $message, Level $level): bool
     {
         if (!isset($this->recordsByLevel[$level->value])) {

@@ -22,6 +22,7 @@ use Monolog\Logger;
 use Monolog\LogRecord;
 use Monolog\Processor\ProcessorInterface;
 use Monolog\Processor\UidProcessor;
+use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Exception;
 use Psr\Log\InvalidArgumentException;
@@ -452,6 +453,7 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
              *
              * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
              */
+            #[Override]
             public function isHandling(LogRecord $record): bool
             {
                 throw new \Exception();
@@ -462,6 +464,7 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
              *
              * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
              */
+            #[Override]
             public function handle(LogRecord $record): bool
             {
                 throw new \Exception();
@@ -474,12 +477,14 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
              *
              * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
              */
+            #[Override]
             public function handleBatch(array $records): void
             {
                 throw new \Exception();
             }
 
             /** @throws \Exception */
+            #[Override]
             public function close(): void
             {
                 throw new \Exception();
@@ -508,6 +513,7 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
              *
              * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
              */
+            #[Override]
             public function isHandling(LogRecord $record): bool
             {
                 throw new \Exception();
@@ -518,6 +524,7 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
              *
              * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
              */
+            #[Override]
             public function handle(LogRecord $record): bool
             {
                 throw new \Exception();
@@ -530,12 +537,14 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
              *
              * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
              */
+            #[Override]
             public function handleBatch(array $records): void
             {
                 throw new \Exception();
             }
 
             /** @throws \Exception */
+            #[Override]
             public function close(): void
             {
                 throw new \Exception();

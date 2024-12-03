@@ -27,6 +27,7 @@ use Monolog\Handler\ProcessableHandlerTrait;
 use Monolog\Level;
 use Monolog\LogRecord;
 use Monolog\ResettableInterface;
+use Override;
 use Psr\Log\LogLevel;
 use RuntimeException;
 
@@ -91,6 +92,7 @@ final class CallbackFilterHandler extends AbstractHandler implements Processable
     }
 
     /** @throws void */
+    #[Override]
     public function isHandling(LogRecord $record): bool
     {
         if (!parent::isHandling($record)) {
@@ -110,6 +112,7 @@ final class CallbackFilterHandler extends AbstractHandler implements Processable
     }
 
     /** @throws RuntimeException */
+    #[Override]
     public function handle(LogRecord $record): bool
     {
         // The same logic as in FilterHandler
@@ -130,6 +133,7 @@ final class CallbackFilterHandler extends AbstractHandler implements Processable
      *
      * @throws RuntimeException
      */
+    #[Override]
     public function handleBatch(array $records): void
     {
         // The same logic as in FilterHandler
@@ -175,6 +179,7 @@ final class CallbackFilterHandler extends AbstractHandler implements Processable
     }
 
     /** @throws RuntimeException */
+    #[Override]
     public function reset(): void
     {
         $this->resetProcessors();

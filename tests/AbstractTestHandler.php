@@ -16,6 +16,7 @@ namespace Mimmi20\Monolog\Handler\Tests;
 
 use Monolog\Handler\Handler;
 use Monolog\LogRecord;
+use Override;
 
 /**
  * Features included in dev-master branch but not yet released as a stable version
@@ -33,6 +34,7 @@ abstract class AbstractTestHandler extends Handler
      *
      * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
      */
+    #[Override]
     public function isHandling(LogRecord $record): bool
     {
         return false;
@@ -43,6 +45,7 @@ abstract class AbstractTestHandler extends Handler
      *
      * @phpcsSuppress SlevomatCodingStandard.Functions.UnusedParameter.UnusedParameter
      */
+    #[Override]
     public function handle(LogRecord $record): bool
     {
         return false;
