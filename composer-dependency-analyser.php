@@ -1,4 +1,15 @@
 <?php
+/**
+ * This file is part of the mimmi20/monolog-callbackfilterhandler package.
+ *
+ * Copyright (c) 2022-2024, Thomas Mueller <mimmi20@live.de>
+ * Copyright (c) 2015-2021, Laurent Laville <pear@laurent-laville.org>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types = 1);
 
 use ShipMonk\ComposerDependencyAnalyser\Config\Configuration;
 use ShipMonk\ComposerDependencyAnalyser\Config\ErrorType;
@@ -12,7 +23,8 @@ $config
     ->addPathToScan(__DIR__ . '/tests', isDev: true)
     ->addPathToScan(__DIR__ . '/vendor', isDev: false)
     ->addPathToExclude(__DIR__ . '/vendor/rector/rector/vendor')
-    ->setFileExtensions(['php']) // applies only to directory scanning, not directly listed files
+    // applies only to directory scanning, not directly listed files
+    ->setFileExtensions(['php'])
 
     // Ignoring errors in vendor directory
     ->ignoreErrorsOnPath(__DIR__ . '/vendor', [ErrorType::SHADOW_DEPENDENCY])
@@ -26,7 +38,7 @@ $config
     ->ignoreErrorsOnPackage('phpstan/phpstan-phpunit', [ErrorType::UNUSED_DEPENDENCY])
 
     // Adjust analysis
-    ->enableAnalysisOfUnusedDevDependencies() // dev packages are often used only in CI, so this is not enabled by default
-    ;
+    // dev packages are often used only in CI, so this is not enabled by default
+    ->enableAnalysisOfUnusedDevDependencies();
 
 return $config;
