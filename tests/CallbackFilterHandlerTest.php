@@ -560,6 +560,7 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
      * Bad filter configuration.
      *
      * @throws RuntimeException
+     * @throws \PHPUnit\Framework\MockObject\Exception
      */
     public function testGetHandlerWithClosureFailure(): void
     {
@@ -592,6 +593,7 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
      * Bad filter configuration.
      *
      * @throws RuntimeException
+     * @throws \PHPUnit\Framework\MockObject\Exception
      */
     public function testGetHandlerWithClosure(): void
     {
