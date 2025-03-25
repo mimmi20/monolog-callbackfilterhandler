@@ -240,7 +240,7 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
 
         $levelName = Level::fromValue($record->level->value)->getName();
         $hasMethod = 'has' . ucfirst(mb_strtolower($levelName));
-        $result    = $test->{$hasMethod}(sprintf('sample of %s message', $levelName), $record->level);
+        $result    = $test->{$hasMethod}(sprintf('sample of %s message', $levelName));
 
         if (in_array($record->level->value, [Level::Info->value, Level::Notice->value], true)) {
             self::assertTrue($result);
