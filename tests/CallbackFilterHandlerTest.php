@@ -163,10 +163,16 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
 
         $callbackFilterHandler = new CallbackFilterHandler($test, $filters, $testlvl);
 
-        if (in_array($record->level->value, [Level::Info->value, Level::Notice->value], strict: true)) {
-            self::assertTrue($callbackFilterHandler->isHandling($record));
+        if (
+            in_array(
+                $logRecord->level->value,
+                [Level::Info->value, Level::Notice->value],
+                strict: true,
+            )
+        ) {
+            self::assertTrue($callbackFilterHandler->isHandling($logRecord));
         } else {
-            self::assertFalse($callbackFilterHandler->isHandling($record));
+            self::assertFalse($callbackFilterHandler->isHandling($logRecord));
         }
     }
 
@@ -200,10 +206,16 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
 
         $callbackFilterHandler = new CallbackFilterHandler($test, $filters, $testlvl);
 
-        if (in_array($record->level->value, [Level::Info->value, Level::Notice->value], strict: true)) {
-            self::assertTrue($callbackFilterHandler->isHandling($record));
+        if (
+            in_array(
+                $logRecord->level->value,
+                [Level::Info->value, Level::Notice->value],
+                strict: true,
+            )
+        ) {
+            self::assertTrue($callbackFilterHandler->isHandling($logRecord));
         } else {
-            self::assertFalse($callbackFilterHandler->isHandling($record));
+            self::assertFalse($callbackFilterHandler->isHandling($logRecord));
         }
     }
 
@@ -226,13 +238,19 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
 
         $testHandler           = new TestHandler();
         $callbackFilterHandler = new CallbackFilterHandler($testHandler, $filters);
-        $callbackFilterHandler->handle($record);
+        $callbackFilterHandler->handle($logRecord);
 
-        $levelName = Level::fromValue($record->level->value)->getName();
+        $levelName = Level::fromValue($logRecord->level->value)->getName();
         $hasMethod = 'has' . ucfirst(mb_strtolower($levelName));
         $result    = $testHandler->{$hasMethod}(sprintf('sample of %s message', $levelName));
 
-        if (in_array($record->level->value, [Level::Info->value, Level::Notice->value], strict: true)) {
+        if (
+            in_array(
+                $logRecord->level->value,
+                [Level::Info->value, Level::Notice->value],
+                strict: true,
+            )
+        ) {
             self::assertTrue($result);
         } else {
             self::assertFalse($result);
@@ -259,12 +277,12 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
         $testHandler = new TestHandler();
 
         $callbackFilterHandler = new CallbackFilterHandler($testHandler, $filters);
-        $callbackFilterHandler->handle($record);
+        $callbackFilterHandler->handle($logRecord);
 
-        if ($record->level->value === Level::Notice->value) {
-            self::assertTrue($testHandler->hasNoticeThatContains($record->message));
+        if ($logRecord->level->value === Level::Notice->value) {
+            self::assertTrue($testHandler->hasNoticeThatContains($logRecord->message));
         } else {
-            self::assertFalse($testHandler->hasNoticeThatContains($record->message));
+            self::assertFalse($testHandler->hasNoticeThatContains($logRecord->message));
         }
     }
 
@@ -395,10 +413,10 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
         foreach ([false, true] as $bubble) {
             $handler = new CallbackFilterHandler($testHandler, $filters, $testlvl, $bubble);
 
-            if ($record->level->value === Level::Notice->value && $bubble === false) {
-                self::assertTrue($handler->handle($record));
+            if ($logRecord->level->value === Level::Notice->value && $bubble === false) {
+                self::assertTrue($handler->handle($logRecord));
             } else {
-                self::assertFalse($handler->handle($record));
+                self::assertFalse($handler->handle($logRecord));
             }
         }
     }
@@ -427,10 +445,10 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
         foreach ([false, true] as $bubble) {
             $handler = new CallbackFilterHandler($testHandler, $filters, $testlvl, $bubble);
 
-            if ($record->level->value === Level::Notice->value && $bubble === false) {
-                self::assertTrue($handler->handle($record));
+            if ($logRecord->level->value === Level::Notice->value && $bubble === false) {
+                self::assertTrue($handler->handle($logRecord));
             } else {
-                self::assertFalse($handler->handle($record));
+                self::assertFalse($handler->handle($logRecord));
             }
         }
     }
