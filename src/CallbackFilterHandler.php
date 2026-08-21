@@ -99,7 +99,7 @@ final class CallbackFilterHandler extends AbstractHandler implements Processable
             return false;
         }
 
-        if (isset($record->message)) {
+        if ($record->message) {
             // when record is fulfilled, try each filter
             foreach ($this->filters as $filter) {
                 if (!$filter($record, $this->level)) {

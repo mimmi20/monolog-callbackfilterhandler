@@ -42,15 +42,14 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
      *
      * @throws Exception
      * @throws RuntimeException
+     * @throws \PHPUnit\Framework\MockObject\Exception
      */
-    #[DataProvider('provideSuiteRecords')]
-    public function testIsHandling(LogRecord $record): void
+    #[DataProvider(methodName: 'provideSuiteRecords')]
+    public function testIsHandling(LogRecord $logRecord): void
     {
         $filters = [];
 
-        $test = $this->getMockBuilder(HandlerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $test = $this->createMock(HandlerInterface::class);
         $test->expects(self::never())
             ->method('isHandling');
         $test->expects(self::never())
@@ -60,11 +59,11 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
         $test->expects(self::never())
             ->method('close');
 
-        $handler = new CallbackFilterHandler($test, $filters);
+        $callbackFilterHandler = new CallbackFilterHandler($test, $filters);
 
-        self::assertTrue($handler->isHandling($record));
-        self::assertTrue($handler->getBubble());
-        self::assertSame(Level::Debug, $handler->getLevel());
+        self::assertTrue($callbackFilterHandler->isHandling($logRecord));
+        self::assertTrue($callbackFilterHandler->getBubble());
+        self::assertSame(Level::Debug, $callbackFilterHandler->getLevel());
     }
 
     /**
@@ -72,16 +71,15 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
      *
      * @throws Exception
      * @throws RuntimeException
+     * @throws \PHPUnit\Framework\MockObject\Exception
      */
-    #[DataProvider('provideSuiteRecords')]
-    public function testIsHandlingLevel(LogRecord $record): void
+    #[DataProvider(methodName: 'provideSuiteRecords')]
+    public function testIsHandlingLevel(LogRecord $logRecord): void
     {
         $filters = [];
         $testlvl = Level::Warning;
 
-        $test = $this->getMockBuilder(HandlerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $test = $this->createMock(HandlerInterface::class);
         $test->expects(self::never())
             ->method('isHandling');
         $test->expects(self::never())
@@ -91,16 +89,16 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
         $test->expects(self::never())
             ->method('close');
 
-        $handler = new CallbackFilterHandler($test, $filters, $testlvl, false);
+        $callbackFilterHandler = new CallbackFilterHandler($test, $filters, $testlvl, bubble: false);
 
-        if ($record->level->value >= $testlvl->value) {
-            self::assertTrue($handler->isHandling($record));
+        if ($logRecord->level->value >= $testlvl->value) {
+            self::assertTrue($callbackFilterHandler->isHandling($logRecord));
         } else {
-            self::assertFalse($handler->isHandling($record));
+            self::assertFalse($callbackFilterHandler->isHandling($logRecord));
         }
 
-        self::assertSame($testlvl, $handler->getLevel());
-        self::assertFalse($handler->getBubble());
+        self::assertSame($testlvl, $callbackFilterHandler->getLevel());
+        self::assertFalse($callbackFilterHandler->getBubble());
     }
 
     /**
@@ -109,16 +107,15 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
      * @throws Exception
      * @throws RuntimeException
      * @throws InvalidArgumentException
+     * @throws \PHPUnit\Framework\MockObject\Exception
      */
-    #[DataProvider('provideSuiteRecords')]
-    public function testIsHandlingLevelWithLoglevel(LogRecord $record): void
+    #[DataProvider(methodName: 'provideSuiteRecords')]
+    public function testIsHandlingLevelWithLoglevel(LogRecord $logRecord): void
     {
         $filters = [];
         $testlvl = LogLevel::WARNING;
 
-        $test = $this->getMockBuilder(HandlerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $test = $this->createMock(HandlerInterface::class);
         $test->expects(self::never())
             ->method('isHandling');
         $test->expects(self::never())
@@ -128,14 +125,14 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
         $test->expects(self::never())
             ->method('close');
 
-        $handler = new CallbackFilterHandler($test, $filters, $testlvl);
+        $callbackFilterHandler = new CallbackFilterHandler($test, $filters, $testlvl);
 
         $levelToCompare = Logger::toMonologLevel($testlvl);
 
-        if ($record->level->value >= $levelToCompare->value) {
-            self::assertTrue($handler->isHandling($record));
+        if ($logRecord->level->value >= $levelToCompare->value) {
+            self::assertTrue($callbackFilterHandler->isHandling($logRecord));
         } else {
-            self::assertFalse($handler->isHandling($record));
+            self::assertFalse($callbackFilterHandler->isHandling($logRecord));
         }
     }
 
@@ -144,22 +141,21 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
      *
      * @throws Exception
      * @throws RuntimeException
+     * @throws \PHPUnit\Framework\MockObject\Exception
      */
-    #[DataProvider('provideSuiteRecords')]
-    public function testIsHandlingLevelAndCallback(LogRecord $record): void
+    #[DataProvider(methodName: 'provideSuiteRecords')]
+    public function testIsHandlingLevelAndCallback(LogRecord $logRecord): void
     {
         $filters = [
-            static fn (LogRecord $record) => in_array(
-                $record->level->value,
+            static fn (LogRecord $logRecord): bool => in_array(
+                $logRecord->level->value,
                 [Level::Info->value, Level::Notice->value],
-                true,
+                strict: true,
             ),
         ];
         $testlvl = Level::Info;
 
-        $test = $this->getMockBuilder(HandlerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $test = $this->createMock(HandlerInterface::class);
         $test->expects(self::never())
             ->method('isHandling');
         $test->expects(self::never())
@@ -169,12 +165,18 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
         $test->expects(self::never())
             ->method('close');
 
-        $handler = new CallbackFilterHandler($test, $filters, $testlvl);
+        $callbackFilterHandler = new CallbackFilterHandler($test, $filters, $testlvl);
 
-        if (in_array($record->level->value, [Level::Info->value, Level::Notice->value], true)) {
-            self::assertTrue($handler->isHandling($record));
+        if (
+            in_array(
+                $logRecord->level->value,
+                [Level::Info->value, Level::Notice->value],
+                strict: true,
+            )
+        ) {
+            self::assertTrue($callbackFilterHandler->isHandling($logRecord));
         } else {
-            self::assertFalse($handler->isHandling($record));
+            self::assertFalse($callbackFilterHandler->isHandling($logRecord));
         }
     }
 
@@ -183,22 +185,21 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
      *
      * @throws Exception
      * @throws RuntimeException
+     * @throws \PHPUnit\Framework\MockObject\Exception
      */
-    #[DataProvider('provideSuiteRecords')]
-    public function testIsHandlingLevelAndCallbackWithLoglevel(LogRecord $record): void
+    #[DataProvider(methodName: 'provideSuiteRecords')]
+    public function testIsHandlingLevelAndCallbackWithLoglevel(LogRecord $logRecord): void
     {
         $filters = [
-            static fn (LogRecord $record) => in_array(
-                $record->level->value,
+            static fn (LogRecord $logRecord): bool => in_array(
+                $logRecord->level->value,
                 [Level::Info->value, Level::Notice->value],
-                true,
+                strict: true,
             ),
         ];
         $testlvl = LogLevel::INFO;
 
-        $test = $this->getMockBuilder(HandlerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $test = $this->createMock(HandlerInterface::class);
         $test->expects(self::never())
             ->method('isHandling');
         $test->expects(self::never())
@@ -208,12 +209,18 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
         $test->expects(self::never())
             ->method('close');
 
-        $handler = new CallbackFilterHandler($test, $filters, $testlvl);
+        $callbackFilterHandler = new CallbackFilterHandler($test, $filters, $testlvl);
 
-        if (in_array($record->level->value, [Level::Info->value, Level::Notice->value], true)) {
-            self::assertTrue($handler->isHandling($record));
+        if (
+            in_array(
+                $logRecord->level->value,
+                [Level::Info->value, Level::Notice->value],
+                strict: true,
+            )
+        ) {
+            self::assertTrue($callbackFilterHandler->isHandling($logRecord));
         } else {
-            self::assertFalse($handler->isHandling($record));
+            self::assertFalse($callbackFilterHandler->isHandling($logRecord));
         }
     }
 
@@ -223,26 +230,32 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
      * @throws Exception
      * @throws RuntimeException
      */
-    #[DataProvider('provideSuiteRecords')]
-    public function testHandleProcessOnlyNeededLevels(LogRecord $record): void
+    #[DataProvider(methodName: 'provideSuiteRecords')]
+    public function testHandleProcessOnlyNeededLevels(LogRecord $logRecord): void
     {
         $filters = [
-            static fn (LogRecord $record) => in_array(
-                $record->level->value,
+            static fn (LogRecord $logRecord): bool => in_array(
+                $logRecord->level->value,
                 [Level::Info->value, Level::Notice->value],
-                true,
+                strict: true,
             ),
         ];
 
-        $test    = new TestHandler();
-        $handler = new CallbackFilterHandler($test, $filters);
-        $handler->handle($record);
+        $testHandler           = new TestHandler();
+        $callbackFilterHandler = new CallbackFilterHandler($testHandler, $filters);
+        $callbackFilterHandler->handle($logRecord);
 
-        $levelName = Level::fromValue($record->level->value)->getName();
+        $levelName = Level::fromValue($logRecord->level->value)->getName();
         $hasMethod = 'has' . ucfirst(mb_strtolower($levelName));
-        $result    = $test->{$hasMethod}(sprintf('sample of %s message', $levelName));
+        $result    = $testHandler->{$hasMethod}(sprintf('sample of %s message', $levelName));
 
-        if (in_array($record->level->value, [Level::Info->value, Level::Notice->value], true)) {
+        if (
+            in_array(
+                $logRecord->level->value,
+                [Level::Info->value, Level::Notice->value],
+                strict: true,
+            )
+        ) {
             self::assertTrue($result);
         } else {
             self::assertFalse($result);
@@ -255,23 +268,26 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
      * @throws Exception
      * @throws RuntimeException
      */
-    #[DataProvider('provideSuiteRecords')]
-    public function testHandleProcessAllMatchingRules(LogRecord $record): void
+    #[DataProvider(methodName: 'provideSuiteRecords')]
+    public function testHandleProcessAllMatchingRules(LogRecord $logRecord): void
     {
         $filters = [
-            static fn (LogRecord $record) => $record->level->value === Level::Notice->value,
-            static fn (LogRecord $record) => preg_match('/^sample of/', $record->message) === 1,
+            static fn (LogRecord $logRecord): bool => $logRecord->level->value === Level::Notice->value,
+            static fn (LogRecord $logRecord): bool => preg_match(
+                '/^sample of/',
+                $logRecord->message,
+            ) === 1,
         ];
 
-        $test = new TestHandler();
+        $testHandler = new TestHandler();
 
-        $handler = new CallbackFilterHandler($test, $filters);
-        $handler->handle($record);
+        $callbackFilterHandler = new CallbackFilterHandler($testHandler, $filters);
+        $callbackFilterHandler->handle($logRecord);
 
-        if ($record->level->value === Level::Notice->value) {
-            self::assertTrue($test->hasNoticeThatContains($record->message));
+        if ($logRecord->level->value === Level::Notice->value) {
+            self::assertTrue($testHandler->hasNoticeThatContains($logRecord->message));
         } else {
-            self::assertFalse($test->hasNoticeThatContains($record->message));
+            self::assertFalse($testHandler->hasNoticeThatContains($logRecord->message));
         }
     }
 
@@ -285,18 +301,21 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
     public function testHandleBatch(): void
     {
         $filters = [
-            static fn (LogRecord $record) => $record->level->value === Level::Info->value,
-            static fn (LogRecord $record) => preg_match('/information/', $record->message) === 1,
+            static fn (LogRecord $logRecord): bool => $logRecord->level->value === Level::Info->value,
+            static fn (LogRecord $logRecord): bool => preg_match(
+                '/information/',
+                $logRecord->message,
+            ) === 1,
         ];
 
-        $records = $this->getMultipleRecords();
-        $test    = new TestHandler();
+        $records     = $this->getMultipleRecords();
+        $testHandler = new TestHandler();
 
-        $handler = new CallbackFilterHandler($test, $filters);
-        $handler->handleBatch($records);
+        $callbackFilterHandler = new CallbackFilterHandler($testHandler, $filters);
+        $callbackFilterHandler->handleBatch($records);
 
         self::assertTrue(
-            $test->hasOnlyRecordsThatContains('information', Level::Info),
+            $testHandler->hasOnlyRecordsThatContains('information', Level::Info),
         );
     }
 
@@ -306,65 +325,68 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
      * @throws Exception
      * @throws RuntimeException
      * @throws InvalidArgumentException
+     * @throws \PHPUnit\Framework\MockObject\Exception
      */
     public function testHandleBatch2(): void
     {
         $filters = [
-            static fn (LogRecord $record) => $record->level->value === Level::Info->value,
-            static fn (LogRecord $record) => preg_match('/information/', $record->message) === false,
+            static fn (LogRecord $logRecord): bool => $logRecord->level->value === Level::Info->value,
+            static fn (LogRecord $logRecord): bool => preg_match(
+                '/information/',
+                $logRecord->message,
+            ) === false,
         ];
 
-        $records = $this->getMultipleRecords();
-        $test    = new TestHandler();
+        $records     = $this->getMultipleRecords();
+        $testHandler = new TestHandler();
 
-        $handler = new CallbackFilterHandler($test, $filters);
-        $handler->handleBatch($records);
+        $callbackFilterHandler = new CallbackFilterHandler($testHandler, $filters);
+        $callbackFilterHandler->handleBatch($records);
 
-        self::assertSame([], $test->getRecords());
+        self::assertSame([], $testHandler->getRecords());
     }
 
     /**
      * @throws Exception
      * @throws RuntimeException
      * @throws InvalidArgumentException
+     * @throws \PHPUnit\Framework\MockObject\Exception
      */
     public function testHandleUsesProcessors(): void
     {
         $filters = [
-            static fn (LogRecord $record) => in_array(
-                $record->level->value,
+            static fn (LogRecord $logRecord): bool => in_array(
+                $logRecord->level->value,
                 [Level::Debug->value, Level::Warning->value],
-                true,
+                strict: true,
             ),
         ];
 
-        $test = new TestHandler();
+        $testHandler = new TestHandler();
 
-        $record1 = $this->getRecord();
-        $record2 = $this->getRecord(Level::Error);
+        $logRecord = $this->getRecord();
+        $record2   = $this->getRecord(Level::Error);
 
-        $callback = static function (LogRecord $record): LogRecord {
-            $record->extra['foo'] = true;
+        $callback = static function (LogRecord $logRecord): LogRecord {
+            $logRecord->extra['foo'] = true;
 
-            return $record;
+            return $logRecord;
         };
 
-        $processor = $this->getMockBuilder(ProcessorInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $processor = $this->createMock(ProcessorInterface::class);
         $processor->expects(self::once())
             ->method('__invoke')
-            ->with($record1)
+            ->with($logRecord)
             ->willReturnCallback($callback);
 
-        $handler = new CallbackFilterHandler($test, $filters);
-        $handler->pushProcessor($processor);
+        $callbackFilterHandler = new CallbackFilterHandler($testHandler, $filters);
+        $callbackFilterHandler->pushProcessor($processor);
 
-        $handler->handle($record1);
-        $handler->handle($record2);
+        $callbackFilterHandler->handle($logRecord);
+        $callbackFilterHandler->handle($record2);
 
         self::assertTrue(
-            $test->hasOnlyRecordsMatching(
+            $testHandler->hasOnlyRecordsMatching(
                 [
                     'extra' => ['foo' => true],
                     'level' => Level::Warning,
@@ -381,27 +403,27 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
      * @throws Exception
      * @throws RuntimeException
      */
-    #[DataProvider('provideSuiteBubbleRecords')]
-    public function testHandleRespectsBubble(LogRecord $record): void
+    #[DataProvider(methodName: 'provideSuiteBubbleRecords')]
+    public function testHandleRespectsBubble(LogRecord $logRecord): void
     {
         $filters = [
-            static fn (LogRecord $record) => in_array(
-                $record->level->value,
+            static fn (LogRecord $logRecord): bool => in_array(
+                $logRecord->level->value,
                 [Level::Info->value, Level::Notice->value],
-                true,
+                strict: true,
             ),
         ];
         $testlvl = Level::Info;
 
-        $test = new TestHandler();
+        $testHandler = new TestHandler();
 
         foreach ([false, true] as $bubble) {
-            $handler = new CallbackFilterHandler($test, $filters, $testlvl, $bubble);
+            $handler = new CallbackFilterHandler($testHandler, $filters, $testlvl, $bubble);
 
-            if ($record->level->value === Level::Notice->value && $bubble === false) {
-                self::assertTrue($handler->handle($record));
+            if ($logRecord->level->value === Level::Notice->value && $bubble === false) {
+                self::assertTrue($handler->handle($logRecord));
             } else {
-                self::assertFalse($handler->handle($record));
+                self::assertFalse($handler->handle($logRecord));
             }
         }
     }
@@ -414,26 +436,26 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
      * @throws Exception
      * @throws RuntimeException
      */
-    #[DataProvider('provideSuiteBubbleRecords')]
-    public function testHandleRespectsBubbleWithLoglevel(LogRecord $record): void
+    #[DataProvider(methodName: 'provideSuiteBubbleRecords')]
+    public function testHandleRespectsBubbleWithLoglevel(LogRecord $logRecord): void
     {
-        $filters = [
-            static fn (LogRecord $record) => in_array(
-                $record->level->value,
+        $filters     = [
+            static fn (LogRecord $logRecord): bool => in_array(
+                $logRecord->level->value,
                 [Level::Info->value, Level::Notice->value],
-                true,
+                strict: true,
             ),
         ];
-        $testlvl = LogLevel::INFO;
-        $test    = new TestHandler();
+        $testlvl     = LogLevel::INFO;
+        $testHandler = new TestHandler();
 
         foreach ([false, true] as $bubble) {
-            $handler = new CallbackFilterHandler($test, $filters, $testlvl, $bubble);
+            $handler = new CallbackFilterHandler($testHandler, $filters, $testlvl, $bubble);
 
-            if ($record->level->value === Level::Notice->value && $bubble === false) {
-                self::assertTrue($handler->handle($record));
+            if ($logRecord->level->value === Level::Notice->value && $bubble === false) {
+                self::assertTrue($handler->handle($logRecord));
             } else {
-                self::assertFalse($handler->handle($record));
+                self::assertFalse($handler->handle($logRecord));
             }
         }
     }
@@ -551,9 +573,9 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
             }
         };
 
-        $handler = new CallbackFilterHandler($test, $filters);
+        $callbackFilterHandler = new CallbackFilterHandler($test, $filters);
 
-        self::assertSame($test, $handler->getHandler());
+        self::assertSame($test, $callbackFilterHandler->getHandler());
     }
 
     /**
@@ -566,9 +588,9 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
     {
         $filters = [];
 
-        $logRecord = $this->createMock(LogRecord::class);
+        $logRecord = self::createStub(LogRecord::class);
 
-        $handler = new CallbackFilterHandler(
+        $callbackFilterHandler = new CallbackFilterHandler(
             /**
              * @throws void
              *
@@ -586,7 +608,7 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
         $this->expectExceptionMessage('The factory Closure should return a HandlerInterface');
         $this->expectExceptionCode(0);
 
-        $handler->getHandler($logRecord);
+        $callbackFilterHandler->getHandler($logRecord);
     }
 
     /**
@@ -599,10 +621,10 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
     {
         $filters = [];
 
-        $logRecord   = $this->createMock(LogRecord::class);
-        $testHandler = $this->createMock(HandlerInterface::class);
+        $logRecord   = self::createStub(LogRecord::class);
+        $testHandler = self::createStub(HandlerInterface::class);
 
-        $handler = new CallbackFilterHandler(
+        $callbackFilterHandler = new CallbackFilterHandler(
             /**
              * @throws void
              *
@@ -616,70 +638,64 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
             $filters,
         );
 
-        self::assertSame($testHandler, $handler->getHandler($logRecord));
+        self::assertSame($testHandler, $callbackFilterHandler->getHandler($logRecord));
     }
 
     /**
      * @throws Exception
      * @throws RuntimeException
+     * @throws \PHPUnit\Framework\MockObject\Exception
      */
     public function testReset(): void
     {
         $filters = [
-            static fn (LogRecord $record) => in_array(
-                $record->level->value,
+            static fn (LogRecord $logRecord): bool => in_array(
+                $logRecord->level->value,
                 [Level::Debug->value, Level::Warning->value],
-                true,
+                strict: true,
             ),
         ];
 
-        $test = $this->getMockBuilder(GroupHandler::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $test = $this->createMock(GroupHandler::class);
         $test->expects(self::once())
             ->method('reset');
 
-        $processor = $this->getMockBuilder(UidProcessor::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $processor = $this->createMock(UidProcessor::class);
         $processor->expects(self::once())
             ->method('reset');
 
-        $handler = new CallbackFilterHandler($test, $filters);
-        $handler->pushProcessor($processor);
+        $callbackFilterHandler = new CallbackFilterHandler($test, $filters);
+        $callbackFilterHandler->pushProcessor($processor);
 
-        $handler->reset();
+        $callbackFilterHandler->reset();
     }
 
     /**
      * @throws Exception
      * @throws RuntimeException
+     * @throws \PHPUnit\Framework\MockObject\Exception
      */
     public function testReset2(): void
     {
         $filters = [
-            static fn (LogRecord $record) => in_array(
-                $record->level->value,
+            static fn (LogRecord $logRecord): bool => in_array(
+                $logRecord->level->value,
                 [Level::Debug->value, Level::Warning->value],
-                true,
+                strict: true,
             ),
         ];
 
-        $test = $this->getMockBuilder(AbstractTestHandler::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $test = $this->createMock(AbstractTestHandler::class);
         $test->expects(self::never())
             ->method('reset');
 
-        $processor = $this->getMockBuilder(UidProcessor::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $processor = $this->createMock(UidProcessor::class);
         $processor->expects(self::once())
             ->method('reset');
 
-        $handler = new CallbackFilterHandler($test, $filters);
-        $handler->pushProcessor($processor);
+        $callbackFilterHandler = new CallbackFilterHandler($test, $filters);
+        $callbackFilterHandler->pushProcessor($processor);
 
-        $handler->reset();
+        $callbackFilterHandler->reset();
     }
 }
