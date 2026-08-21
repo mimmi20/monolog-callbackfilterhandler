@@ -42,6 +42,7 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
      *
      * @throws Exception
      * @throws RuntimeException
+     * @throws \PHPUnit\Framework\MockObject\Exception
      */
     #[DataProvider(methodName: 'provideSuiteRecords')]
     public function testIsHandling(LogRecord $logRecord): void
@@ -70,6 +71,7 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
      *
      * @throws Exception
      * @throws RuntimeException
+     * @throws \PHPUnit\Framework\MockObject\Exception
      */
     #[DataProvider(methodName: 'provideSuiteRecords')]
     public function testIsHandlingLevel(LogRecord $logRecord): void
@@ -105,6 +107,7 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
      * @throws Exception
      * @throws RuntimeException
      * @throws InvalidArgumentException
+     * @throws \PHPUnit\Framework\MockObject\Exception
      */
     #[DataProvider(methodName: 'provideSuiteRecords')]
     public function testIsHandlingLevelWithLoglevel(LogRecord $logRecord): void
@@ -138,6 +141,7 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
      *
      * @throws Exception
      * @throws RuntimeException
+     * @throws \PHPUnit\Framework\MockObject\Exception
      */
     #[DataProvider(methodName: 'provideSuiteRecords')]
     public function testIsHandlingLevelAndCallback(LogRecord $logRecord): void
@@ -181,6 +185,7 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
      *
      * @throws Exception
      * @throws RuntimeException
+     * @throws \PHPUnit\Framework\MockObject\Exception
      */
     #[DataProvider(methodName: 'provideSuiteRecords')]
     public function testIsHandlingLevelAndCallbackWithLoglevel(LogRecord $logRecord): void
@@ -320,6 +325,7 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
      * @throws Exception
      * @throws RuntimeException
      * @throws InvalidArgumentException
+     * @throws \PHPUnit\Framework\MockObject\Exception
      */
     public function testHandleBatch2(): void
     {
@@ -344,6 +350,7 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
      * @throws Exception
      * @throws RuntimeException
      * @throws InvalidArgumentException
+     * @throws \PHPUnit\Framework\MockObject\Exception
      */
     public function testHandleUsesProcessors(): void
     {
@@ -637,6 +644,7 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
     /**
      * @throws Exception
      * @throws RuntimeException
+     * @throws \PHPUnit\Framework\MockObject\Exception
      */
     public function testReset(): void
     {
@@ -665,6 +673,7 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
     /**
      * @throws Exception
      * @throws RuntimeException
+     * @throws \PHPUnit\Framework\MockObject\Exception
      */
     public function testReset2(): void
     {
