@@ -563,7 +563,7 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
     {
         $filters = [];
 
-        $logRecord = $this->createStub(LogRecord::class);
+        $logRecord = self::createStub(LogRecord::class);
 
         $callbackFilterHandler = new CallbackFilterHandler(
             /**
@@ -596,8 +596,8 @@ final class CallbackFilterHandlerTest extends AbstractTestCase
     {
         $filters = [];
 
-        $logRecord   = $this->createStub(LogRecord::class);
-        $testHandler = $this->createStub(HandlerInterface::class);
+        $logRecord   = self::createStub(LogRecord::class);
+        $testHandler = self::createStub(HandlerInterface::class);
 
         $callbackFilterHandler = new CallbackFilterHandler(
             /**
